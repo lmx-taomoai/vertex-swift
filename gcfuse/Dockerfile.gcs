@@ -1,0 +1,87 @@
+# Swift 微调训练 Dockerfile for Vertex AI - GCS 挂载版本
+# 使用 gcsfuse 挂载 GCS 存储桶访问模型和输出
+# 基于 PyTorch 2.5.1 + CUDA 12.4
+FROM --platform=linux/amd64 pytorch/pytorch:2.5.1-cuda12.4-cudnn9-devel
+
+WORKDIR /app
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+
+# 安装系统依赖（包括 gcsfuse 所需的依赖）
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    fuse \
+    lsb-release \
+    gnupg \
+    apt-transport-https \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装 gcsfuse
+RUN export GCSFUSE_REPO=gcsfuse-$(lsb_release -c -s) && \
+    echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    apt-get update && \
+    apt-get install -y gcsfuse && \
+    rm -rf /var/lib/apt/lists/*
+
+# 验证 gcsfuse 安装
+RUN gcsfuse --version
+
+# 安装 Google Cloud SDK（包含 gsutil）
+RUN curl -sSL https://sdk.cloud.google.com | bash
+ENV PATH="/root/google-cloud-sdk/bin:${PATH}"
+
+# 复制 requirements.txt 并安装 Python 依赖
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 安装 gcsfs（Python 库，与 gcsfuse 配合使用）
+RUN pip install --no-cache-dir gcsfs
+
+# 复制训练脚本和数据
+COPY bard/ /app/bard/
+COPY train_gcs.sh /app/train_gcs.sh
+
+# 注意：模型不再打包在镜像中，将从 GCS 挂载
+# 这样可以大幅减小镜像大小（从 20GB+ 降到几百 MB）
+
+# Flash attention 安装
+RUN pip install flash-attn --no-build-isolation
+
+# 安装 ms-swift（最新版本）
+RUN pip install 'ms-swift[llm]' -U
+
+# 复制模型检查脚本
+COPY check_swift_models.py /app/check_swift_models.py
+RUN chmod +x /app/check_swift_models.py
+
+# 验证 Swift 安装并显示支持的模型
+RUN python /app/check_swift_models.py || echo "⚠️  Swift 模型检查失败，继续构建..."
+
+# 给脚本添加可执行权限
+RUN chmod +x /app/train_gcs.sh
+
+# 创建挂载目录
+RUN mkdir -p /mnt/gcs/models /mnt/gcs/output
+
+# 设置工作目录
+WORKDIR /app/bard
+
+# 设置容器入口点
+ENTRYPOINT ["/app/train_gcs.sh"]
+
+# 说明：
+# 1. 镜像大小大幅减小（不包含 20GB+ 模型文件）
+# 2. 构建速度更快
+# 3. 模型通过 gcsfuse 从 GCS 挂载
+# 4. 输出通过 gcsfuse 直接写入 GCS
+# 5. 需要在 Vertex AI 中启用 privileged 模式以支持 FUSE

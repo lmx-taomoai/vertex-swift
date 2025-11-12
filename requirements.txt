@@ -1,0 +1,43 @@
+# Core dependencies
+torch>=2.5.0
+torchvision
+transformers>=4.48.0
+accelerate>=0.34.0
+peft>=0.13.0
+datasets>=3.2.0
+tokenizers>=0.20.3
+
+# Swift framework (使用最新版本以支持 Qwen3-VL)
+ms-swift[llm]>=2.7.0
+
+# Model specific
+qwen-vl-utils
+timm
+einops
+decord  # 视频处理库（Qwen-VL 需要）
+
+# Training utilities
+deepspeed>=0.15.0
+ninja
+sentencepiece
+protobuf
+
+# Data processing
+numpy
+pandas
+pillow
+opencv-python-headless
+
+# Google Cloud
+google-cloud-storage
+gcsfs
+
+# Monitoring and logging
+tensorboard
+wandb
+tqdm
+
+# Others
+psutil
+py-cpuinfo
+

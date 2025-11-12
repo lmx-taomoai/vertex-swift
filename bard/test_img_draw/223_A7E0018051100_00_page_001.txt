@@ -1,0 +1,39 @@
+```json
+[
+  {
+    "category": "圆孔",
+    "bbox_2d": [
+      408,
+      205,
+      554,
+      333
+    ],
+    "size": "14mm"
+  },
+  {
+    "category": "圆孔",
+    "bbox_2d": [
+      408,
+      472,
+      554,
+      601
+    ],
+    "size": "14mm"
+  },
+  {
+    "category": "腰孔",
+    "bbox_2d": [],
+    "size": ""
+  },
+  {
+    "category": "矩形孔",
+    "bbox_2d": [],
+    "size": ""
+  },
+  {
+    "category": "螺纹孔",
+    "bbox_2d": [],
+    "size": ""
+  }
+]
+```

@@ -1,0 +1,63 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 训练输出（不需要打包进镜像）
+output/
+*.pth
+*.safetensors
+checkpoint-*/
+
+# 测试文件（如果不需要）
+bard/test_img_draw/
+
+# 排除 bard 下的训练脚本（避免与外层混淆）
+bard/train.sh
+bard/export.sh
+
+# 排除不兼容的预编译包
+bard/*.whl
+
+# 模型会打包进镜像，不排除 models/ 目录
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+tmp/
+
+# README 和文档（可选）
+*.md
+docs/
+

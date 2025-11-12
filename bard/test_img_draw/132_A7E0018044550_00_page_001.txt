@@ -1,0 +1,29 @@
+```json
+[
+  {
+    "category": "圆孔",
+    "bbox_2d": [
+      458,
+      407,
+      628,
+      583
+    ],
+    "size": "17mm"
+  },
+  {
+    "category": "腰孔",
+    "bbox_2d": [],
+    "size": ""
+  },
+  {
+    "category": "矩形孔",
+    "bbox_2d": [],
+    "size": ""
+  },
+  {
+    "category": "螺纹孔",
+    "bbox_2d": [],
+    "size": ""
+  }
+]
+```
